@@ -6,6 +6,7 @@ import {
   serieTemporal,
   getFunil,
   consultasRealizadas,
+  velocidade,
   periodoLabel,
   PIPE_ATENDIMENTO,
   type Periodo,
@@ -25,6 +26,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
 
   const [leads, funil] = await Promise.all([getLeadsPeriodo(p), getFunil(PIPE_ATENDIMENTO)]);
   const r = resumo(leads);
+  const v = velocidade(leads);
   const canais = porCanal(leads);
   const unidades = porUnidade(leads).filter((u) => u.nome !== "(não informado)");
   const serie = serieTemporal(leads, p);
@@ -53,6 +55,13 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ p
             {r.perdidos} leads perdidos × ticket médio {brl(r.ticket)}
           </div>
         </Card>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Kpi label="Dias até a consulta" value={`${v.diasAteConsulta.toFixed(1)}d`} accent="green" />
+        <Kpi label="Dias até perder" value={`${v.diasAtePerda.toFixed(1)}d`} accent="navy" />
+        <Kpi label="Tempo parado médio" value={`${v.diasParadoMedio.toFixed(1)}d`} accent="teal" />
+        <Kpi label="Parados +14 dias" value={v.paradosMais14.toLocaleString("pt-BR")} sub="risco de esfriar" accent="navy" />
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-5">
